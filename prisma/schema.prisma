@@ -4,6 +4,11 @@
 generator client {
   provider = "prisma-client"
   output   = "../generated/prisma"
+  // Without this, the generated client tries to compile its query-compiler
+  // WASM at runtime, which Cloudflare Workers blocks ("Wasm code
+  // generation disallowed by embedder") — this precompiles it at build
+  // time instead. See https://github.com/prisma/prisma/issues/28657
+  runtime  = "cloudflare"
 }
 
 datasource db {
