@@ -25,7 +25,11 @@
 # cloudflare / opennext
 /.open-next/
 /.wrangler/
-cloudflare-env.d.ts
+# cloudflare-env.d.ts is checked in, not ignored: `wrangler types` can't run
+# in this dev environment (sandboxed subprocess spawn is blocked), so it was
+# hand-written from wrangler.jsonc's bindings and needs to travel with the
+# repo. Regenerate it with `npm run cf:typegen` if bindings ever change, on
+# a machine where that command can run.
 
 # production
 /build
