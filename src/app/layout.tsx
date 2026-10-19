@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Baloo_2, Poppins, Geist_Mono } from "next/font/google";
 import { IntroSplash } from "@/components/quizland/intro-splash";
 import { PwaRegister } from "@/components/quizland/pwa-register";
+import { RequireProfile } from "@/components/quizland/require-profile";
 import "./globals.css";
 
 const baloo = Baloo_2({
@@ -51,7 +52,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <PwaRegister />
-        <IntroSplash>{children}</IntroSplash>
+        <IntroSplash>
+          <RequireProfile>{children}</RequireProfile>
+        </IntroSplash>
       </body>
     </html>
   );
