@@ -72,6 +72,32 @@ export async function getOrCreateProfile(userId: string): Promise<PlayerProfile>
   return shapeProfile(userId, user, profile);
 }
 
+export type LeaderboardEntry = {
+  id: string;
+  name: string;
+  avatar: AvatarId;
+  xp: number;
+};
+
+/** Public, cross-device ranking of every signed-in (Google) player's cloud
+ * profile — local guest profiles never reach the database, so they can't
+ * appear here. That's intentional: a leaderboard only makes sense across
+ * identities the server actually knows about. */
+export async function getLeaderboard(limit = 50): Promise<LeaderboardEntry[]> {
+  const db = await getDb();
+  const profiles = await db.profile.findMany({
+    orderBy: { xp: "desc" },
+    take: limit,
+    include: { user: { select: { name: true } } },
+  });
+  return profiles.map((p) => ({
+    id: p.id,
+    name: p.user.name ?? "Joueur",
+    avatar: p.avatar as AvatarId,
+    xp: p.xp,
+  }));
+}
+
 export async function getClaimedToday(userId: string): Promise<DailyChallengeId[]> {
   const db = await getDb();
   const profile = await db.profile.findUnique({ where: { userId } });

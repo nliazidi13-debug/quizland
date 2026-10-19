@@ -2,24 +2,18 @@
 
 import { useEffect, useState } from "react";
 import { Trophy } from "lucide-react";
-import { listProfiles } from "@/lib/player";
 import { QzButton } from "@/components/quizland/qz-button";
-import type { PlayerProfile } from "@/lib/types";
+import type { LeaderboardEntry } from "@/lib/serverProfile";
 
 const medals = ["🥇", "🥈", "🥉"];
 
 export function TopPlayersPanel() {
-  const [profiles, setProfiles] = useState<PlayerProfile[] | null>(null);
+  const [profiles, setProfiles] = useState<LeaderboardEntry[] | null>(null);
 
-  // Profiles live in localStorage only; read them after mount so the
-  // server-rendered markup matches the client's first paint.
   useEffect(() => {
-    const ranked = listProfiles()
-      .slice()
-      .sort((a, b) => b.xp - a.xp)
-      .slice(0, 3);
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setProfiles(ranked);
+    fetch("/api/leaderboard")
+      .then((res) => res.json())
+      .then((data: LeaderboardEntry[]) => setProfiles(data.slice(0, 3)));
   }, []);
 
   return (
@@ -31,8 +25,8 @@ export function TopPlayersPanel() {
 
       {!profiles || profiles.length === 0 ? (
         <p className="text-sm text-white/85">
-          Aucun joueur pour l&apos;instant. Crée ton profil et lance ton
-          premier quiz pour apparaître ici !
+          Aucun joueur pour l&apos;instant. Connecte-toi avec Google et lance
+          ton premier quiz pour apparaître ici !
         </p>
       ) : (
         <div className="flex flex-col gap-2.5">

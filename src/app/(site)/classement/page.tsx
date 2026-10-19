@@ -1,26 +1,21 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { listProfiles } from "@/lib/player";
 import { QzAvatar } from "@/components/quizland/qz-avatar";
 import { QzButton } from "@/components/quizland/qz-button";
-import type { PlayerProfile } from "@/lib/types";
+import type { LeaderboardEntry } from "@/lib/serverProfile";
 
 const podiumHeights = ["h-[60px]", "h-[90px]", "h-[44px]"];
 const podiumColors = ["bg-[#7B2FE3]", "bg-[#FF7A1A]", "bg-[#17D1C9]"];
 const podiumMedals = ["🥈", "🥇", "🥉"];
 
 export default function ClassementPage() {
-  const [profiles, setProfiles] = useState<PlayerProfile[] | null>(null);
+  const [profiles, setProfiles] = useState<LeaderboardEntry[] | null>(null);
 
-  // Profiles live in localStorage only; read them after mount so the
-  // server-rendered markup matches the client's first paint.
   useEffect(() => {
-    const ranked = listProfiles()
-      .slice()
-      .sort((a, b) => b.xp - a.xp);
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setProfiles(ranked);
+    fetch("/api/leaderboard")
+      .then((res) => res.json())
+      .then(setProfiles);
   }, []);
 
   if (profiles === null) return null;
@@ -39,8 +34,8 @@ export default function ClassementPage() {
         {profiles.length === 0 ? (
           <div className="rounded-2xl bg-[#2A1150] p-8 text-center">
             <p className="text-sm text-[#D9CCF5]">
-              Aucun joueur pour l&apos;instant. Crée ton profil et lance un
-              quiz pour apparaître au classement !
+              Aucun joueur pour l&apos;instant. Connecte-toi avec Google et
+              lance un quiz pour apparaître au classement !
             </p>
             <QzButton href="/connexion" tone="accent" className="mt-5">
               Rejoindre l&apos;arène
