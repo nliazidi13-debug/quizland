@@ -74,10 +74,11 @@ model Profile {
   xp        Int      @default(0)
   createdAt DateTime @default(now())
 
-  user    User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  badges  ProfileBadge[]
-  history QuizResultEntry[]
-  claims  DailyClaim[]
+  user       User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badges     ProfileBadge[]
+  history    QuizResultEntry[]
+  claims     DailyClaim[]
+  duelPlayed DuelParticipant[]
 }
 
 model ProfileBadge {
@@ -120,4 +121,35 @@ model DailyClaim {
   profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
 
   @@unique([profileId, challengeId, date])
+}
+
+// A cross-device duel: two signed-in players answer the same fixed
+// question set independently (on their own device, their own pace) and
+// compare scores once both are done — no per-question real-time sync,
+// polled instead, to keep this light on Workers CPU time.
+model DuelMatch {
+  id              String   @id @default(cuid())
+  status          String   @default("waiting") // "waiting" | "active" | "finished"
+  domainsJson     String
+  level           Int
+  questionIdsJson String
+  createdAt       DateTime @default(now())
+
+  participants DuelParticipant[]
+}
+
+model DuelParticipant {
+  id          String    @id @default(cuid())
+  matchId     String
+  profileId   String
+  score       Int?
+  xp          Int?
+  timeSeconds Int?
+  joinedAt    DateTime  @default(now())
+  finishedAt  DateTime?
+
+  match   DuelMatch @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  profile Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@unique([matchId, profileId])
 }

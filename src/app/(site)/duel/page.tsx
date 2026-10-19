@@ -101,10 +101,16 @@ export default function DuelPage() {
       <h1 className="mb-2 font-heading text-2xl font-extrabold text-[#7B2FE3] sm:text-[26px]">
         Duel ⚔️
       </h1>
-      <p className="mb-8 text-sm text-[#6B7094]">
+      <p className="mb-3 text-sm text-[#6B7094]">
         Deux ou trois joueurs, un seul appareil : chacun répond à son tour,
         question après question, et le meilleur score l&apos;emporte.
       </p>
+      <Link
+        href="/duel/en-ligne"
+        className="mb-8 inline-block text-xs font-bold text-[#7B2FE3] hover:underline"
+      >
+        Préfères-tu défier un ami sur un autre appareil ? Duel en ligne →
+      </Link>
 
       <h2 className="mb-3 font-heading text-sm font-extrabold text-[#1A0E33]">
         Nombre de joueurs
