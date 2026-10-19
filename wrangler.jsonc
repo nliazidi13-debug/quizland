@@ -1,0 +1,22 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "quizland",
+  "main": ".open-next/worker.js",
+  "upload_source_maps": true,
+  "compatibility_date": "2026-10-19",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "observability": {
+    "enabled": true
+  },
+  "d1_databases": [
+    {
+      "binding": "quizland_db",
+      "database_name": "quizland-db",
+      "database_id": "4ff753fe-c523-4c82-b23d-d9fdad01fa93"
+    }
+  ]
+}

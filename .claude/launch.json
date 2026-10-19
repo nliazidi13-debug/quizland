@@ -1,0 +1,23 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "quizland-dev",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "port": 3000
+    },
+    {
+      "name": "quizland-prod",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "start"],
+      "port": 4250
+    },
+    {
+      "name": "quizland-static",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", "out", "-l", "4300"],
+      "port": 4300
+    }
+  ]
+}

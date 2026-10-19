@@ -1,0 +1,118 @@
+// Prisma 7 moved the connection URL out of this file and into
+// prisma.config.ts; the client now connects through a driver adapter
+// instead (see src/lib/db.ts). See https://pris.ly/d/config-datasource
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// Auth.js (next-auth v5) canonical schema for @auth/prisma-adapter.
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  profile       Profile?
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// Server-side mirror of the localStorage-only PlayerProfile (src/lib/types.ts)
+// for signed-in users, so gameplay progress follows the account instead of
+// staying stuck on one device/browser. One Profile per User; local-only
+// guest/family profiles (no Google account) keep using localStorage as
+// before and never touch these tables.
+model Profile {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  avatar    String   @default("violet-orange")
+  xp        Int      @default(0)
+  createdAt DateTime @default(now())
+
+  user    User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badges  ProfileBadge[]
+  history QuizResultEntry[]
+  claims  DailyClaim[]
+}
+
+model ProfileBadge {
+  id        String  @id @default(cuid())
+  profileId String
+  icon      String
+  label     String
+
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, icon])
+}
+
+model QuizResultEntry {
+  id              String   @id @default(cuid())
+  profileId       String
+  domain          String
+  level           Int
+  score           Int
+  total           Int
+  xp              Int
+  timeSeconds     Int
+  themeErrorsJson String
+  completedAt     DateTime
+
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@index([profileId, completedAt])
+}
+
+// One row per (profile, challenge, day) once a daily challenge reward has
+// been claimed — progress itself is always recomputed live from history,
+// only the "already claimed" fact needs to persist.
+model DailyClaim {
+  id          String @id @default(cuid())
+  profileId   String
+  challengeId String
+  date        String
+
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, challengeId, date])
+}
